@@ -30,7 +30,7 @@
 #include <ros/ros.h>
 #include <termios.h>
 #include "homework1/myMsg.h"
-
+#include <signal.h>
 
 ros::Publisher filtered_pub;
 int kfd = 0;
@@ -98,7 +98,13 @@ void chatterCallback(const homework1::myMsg& msg)
     filtered_pub.publish(msgf);
   }
 
-   
+ void quit(int sig)
+{
+  (void)sig;
+  tcsetattr(kfd, TCSANOW, &cooked);
+  ros::shutdown();
+  exit(0);
+}  
 
 
 
@@ -119,7 +125,7 @@ int main(int argc, char **argv)
    ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);	
 
    filtered_pub= n.advertise<homework1::myMsg>("filtered", 1000);
-
+signal(SIGINT,quit);
    ros::spin();
 
    return 0;
