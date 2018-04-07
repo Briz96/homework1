@@ -30,8 +30,9 @@
 #include "std_msgs/String.h"
 #include "homework1/myMsg.h"
 
-void chatterCallback(const homework1::myMsg& msg)
+void filteredCallback(const homework1::myMsg& msg)
 {
+	//soluzione per evitare la stampa dell'età anche se non presente
 	if(msg.age==0)
 	{
 		std::cout << msg.name << msg.course <<std::endl;
@@ -51,7 +52,7 @@ int main(int argc, char **argv)
   
   ros::NodeHandle n;
  
-  ros::Subscriber sub = n.subscribe("filtered", 1000, chatterCallback);
+  ros::Subscriber sub = n.subscribe("filtered", 1000, filteredCallback);
 
   ros::spin();
 
