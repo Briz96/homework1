@@ -1,0 +1,5 @@
+<launch>
+	<node name="publisher" pkg="homework1" type="publisher"/>
+	<node name="filtered_msg" pkg="homework1" type="filtered_msg" output="screen" />
+	<node name="reader" pkg="homework1" type="reader" output="screen" />
+ </launch>
