@@ -31,39 +31,25 @@
 #include <termios.h>
 #include "homework1/myMsg.h"
 #include <signal.h>
+#include <iostream>
 
 ros::Publisher filtered_pub;
-int kfd = 0;
-struct termios cooked, raw;
-int count=0;
+void quit(int sig)
+{
+  (void)sig;
+  ros::shutdown();
+  exit(0);
+}  
 
 
 
 void chatterCallback(const homework1::myMsg& msg)
 { 
 	
-       char c;
-
-  // get the console in raw mode                                                              
-  tcgetattr(kfd, &cooked);
-  memcpy(&raw, &cooked, sizeof(struct termios));
-  raw.c_lflag &=~ (ICANON | ECHO);
-  // Setting a new line, then end of file                         
-  raw.c_cc[VEOL] = 1;
-  raw.c_cc[VEOF] = 2;
-  tcsetattr(kfd, TCSANOW, &raw);
-
-  
- homework1::myMsg msgf;
-    // get the next event from the keyboard  
-    if(read(kfd, &c, 1) < 0)
-    {
-      perror("read():");
-      exit(-1);
-    }
-
-    ROS_DEBUG("value: 0x%02X\n", c);
-  
+    char c;
+    std::cin>>c;
+    homework1::myMsg msgf;
+ 
     switch(c)
     {
 
@@ -77,8 +63,7 @@ void chatterCallback(const homework1::myMsg& msg)
       case 'n':
   	{
 	
-	msgf.name=msg.name;
-	//msgf.age=NULL;	
+	msgf.name=msg.name;	
         break;
 	}
       case 'e':
@@ -93,39 +78,32 @@ void chatterCallback(const homework1::myMsg& msg)
         break;
 	default:
 	puts("invalid command!");
-	
+	puts("a : to show all the message");
+   	puts("n : to show the name");
+   	puts("e : to show the age");
+   	puts("c : to show the course");
+
     }
     filtered_pub.publish(msgf);
   }
 
- void quit(int sig)
-{
-  (void)sig;
-  tcsetattr(kfd, TCSANOW, &cooked);
-  ros::shutdown();
-  exit(0);
-}  
-
-
-
-
 int main(int argc, char **argv)
 {
- 
    ros::init(argc, argv, "filter");
   
    ros::NodeHandle n;
  
-   puts("Reading from keyboard");
-   puts("---------------------------");
    puts("a : to show all the message");
    puts("n : to show the name");
    puts("e : to show the age");
    puts("c : to show the course");
+
    ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);	
 
    filtered_pub= n.advertise<homework1::myMsg>("filtered", 1000);
-signal(SIGINT,quit);
+   
+   signal(SIGINT,quit);
+
    ros::spin();
 
    return 0;
