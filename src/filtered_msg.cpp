@@ -33,76 +33,48 @@
 #include <signal.h>
 #include <iostream>
 
-ros::Publisher filtered_pub;
+
 void quit(int sig)
 {
-  (void)sig;
-  ros::shutdown();
-  exit(0);
+  	(void)sig;
+  	ros::shutdown();
+  	exit(0);
 }  
 
 
+int main(int argc, char **argv)
+{
+   	ros::init(argc, argv, "filter");
+  
+   	ros::NodeHandle n;
 
-void chatterCallback(const homework1::myMsg& msg)
-{ 
-	
-    char c;
-    std::cin>>c;
-    homework1::myMsg msgf;
- 
-    switch(c)
-    {
+	ros::Publisher filtered_pub= n.advertise<std_msgs::String>("filter", 1000);
 
-      case 'a':
-	{ 
-        msgf.name=msg.name;
-	msgf.age=msg.age;
-	msgf.course=msg.course;        
-        break;
-	}
-      case 'n':
-  	{
-	
-	msgf.name=msg.name;	
-        break;
-	}
-      case 'e':
-	{        
-        msgf.age=msg.age;        
-        break;
-	}
-      case 'c':
-	{        
-        msgf.course=msg.course;
-	}
-        break;
-	default:
-	puts("invalid command!");
 	puts("a : to show all the message");
    	puts("n : to show the name");
    	puts("e : to show the age");
    	puts("c : to show the course");
 
-    }
-    filtered_pub.publish(msgf);
-  }
+    	std::string c;
+	while(ros::ok)
+	{
+    		std::cin>>c;
+  		if(c.length()>1)
+		{
+			puts("INVALID INPUT!");
+		}
+		else
+		{
+    		std_msgs::String msg;
+		std::stringstream ss;
+    		ss << c;
+    		msg.data = ss.str();   	
 
-int main(int argc, char **argv)
-{
-   ros::init(argc, argv, "filter");
-  
-   ros::NodeHandle n;
- 
-   puts("a : to show all the message");
-   puts("n : to show the name");
-   puts("e : to show the age");
-   puts("c : to show the course");
-
-   ros::Subscriber sub = n.subscribe("chatter", 1000, chatterCallback);	
-
-   filtered_pub= n.advertise<homework1::myMsg>("filtered", 1000);
+   		filtered_pub.publish(msg);
+		}
+		signal(SIGINT,quit);
+	}
    
-   signal(SIGINT,quit);
 
    ros::spin();
 

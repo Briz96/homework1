@@ -30,31 +30,65 @@
 #include "std_msgs/String.h"
 #include "homework1/myMsg.h"
 
+char c=' ';
 void filteredCallback(const homework1::myMsg& msg)
 {
-	//soluzione per evitare la stampa dell'età anche se non presente
-	if(msg.age==0)
-	{
-		std::cout << msg.name << msg.course <<std::endl;
-	}
-	else
-	{
-		std::cout << msg.name << " " << msg.age<< " " << msg.course <<std::endl;
-	}
-  
-}
 
+
+if(c!=' ')
+{
+	switch(c)
+    	{
+      	case 'a':
+	{ 
+        	std::cout << msg.name << " " << msg.age<< " " << msg.course <<std::endl;
+		c=' ';
+        	break;
+		}
+      	case 'n':
+  		{
+		std::cout << msg.name <<std::endl;
+		c=' ';
+        	break;
+		}
+      	case 'e':
+		{        
+        	std::cout << msg.age <<std::endl; 
+		c=' ';   
+        	break;
+		}
+      	case 'c':
+		{        
+       		std::cout << msg.course <<std::endl;
+		c=' ';
+		}
+        	break;
+	default:
+		puts("INVALID COMMAND!");
+		c=' ';
+		}
+	}
+
+}
+void commandCallback(const std_msgs::String::ConstPtr& msg)
+{
+	std::string ss;
+	ss =msg->data.c_str();
+	c=ss[0];
+}
 
 int main(int argc, char **argv)
 {
   
-  ros::init(argc, argv, "reader");
+  	ros::init(argc, argv, "reader");
   
-  ros::NodeHandle n;
- 
-  ros::Subscriber sub = n.subscribe("filtered", 1000, filteredCallback);
+  	ros::NodeHandle n;
 
-  ros::spin();
+  	ros::Subscriber command = n.subscribe("filter", 1000, commandCallback);
+
+  	ros::Subscriber sub = n.subscribe("chatter", 1000, filteredCallback); 
+
+  	ros::spin();
 
   return 0;
 }
